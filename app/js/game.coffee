@@ -42,6 +42,10 @@ $ ->
       alert win + ' won!'
       resetGame()
 
+    if counter == 9 && win == ''
+      alert 'Tie!'
+      resetGame()
+
   markCell = (cell, mark) ->
     cell.text mark
     cell.addClass mark

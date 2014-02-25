@@ -40,6 +40,10 @@
       }
       if (win !== '') {
         alert(win + ' won!');
+        resetGame();
+      }
+      if (counter === 9 && win === '') {
+        alert('Tie!');
         return resetGame();
       }
     };
