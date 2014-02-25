@@ -42,7 +42,7 @@ $ ->
       alert win + ' won!'
       resetGame()
 
-    if counter == 9 && win == ''
+    else if counter > 8
       alert 'Tie!'
       resetGame()
 
