@@ -1,4 +1,4 @@
-@ticTacToe = angular.module 'TicTacToe', []
+ticTacToe = angular.module 'TicTacToe', []
 
 ticTacToe.controller 'BoardController', ($scope) ->
   $scope.cells = {}
