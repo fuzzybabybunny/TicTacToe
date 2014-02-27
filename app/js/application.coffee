@@ -18,8 +18,13 @@ class BoardCtrl
   constructor: (@$scope, @WIN_PATTERNS) ->
     @resetBoard()
     @$scope.mark = @mark
-    @$scope.stateGame = @startGame
+    @$scope.startGame = @startGame
     @$scope.gameOn = false
+
+  startGame: =>
+    @$scope.gameOn = true
+    @$scope.currentPlayer = @player()
+    @resetBoard()
 
   getPatterns: =>
     @patternsToTest = @WIN_PATTERNS.filter -> true
@@ -35,7 +40,10 @@ class BoardCtrl
     'xxx' == row || 'ooo' == row
 
   resetBoard: =>
+    @$scope.theWinnerIs = false
+    @$scope.cats = false
     @cells = @$scope.cells = {}
+    @$scope.currentPlayer = @player()
     @getPatterns()
 
   numberOfMoves: =>
@@ -79,13 +87,11 @@ class BoardCtrl
 
   announceWinner: =>
     winner = @player(whoMovedLast: true)
-    alert "#{winner} wins!"
-    @resetBoard()
+    @$scope.theWinnerIs = winner
     @$scope.gameOn = false
 
   announceTie: =>
-    alert "It's a tie!"
-    @resetBoard()
+    @$scope.cats true
     @$scope.gameOn = false
 
   rowStillWinnable: (row) =>
@@ -110,9 +116,11 @@ class BoardCtrl
       @announceTie()
 
   mark: (@$event) =>
-    cell = @$event.target.dataset.index
-    @cells[cell] = @player()
-    @parseBoard()
+    if @$scope.gameOn
+      cell = @$event.target.dataset.index
+      @cells[cell] = @player()
+      @parseBoard()
+      @$scope.currentPlayer = @player()
 
 
 BoardCtrl.$inject = ["$scope", "WIN_PATTERNS"]
