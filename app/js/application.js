@@ -4,14 +4,15 @@
   var BoardCtrl,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  this.ticTacToe = angular.module('TicTacToe', []);
+  this.ticTacToe = angular.module('TicTacToe', ["firebase"]);
 
   ticTacToe.constant('WIN_PATTERNS', [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]);
 
   BoardCtrl = (function() {
-    function BoardCtrl($scope, WIN_PATTERNS) {
+    function BoardCtrl($scope, WIN_PATTERNS, $firebase) {
       this.$scope = $scope;
       this.WIN_PATTERNS = WIN_PATTERNS;
+      this.$firebase = $firebase;
       this.mark = __bind(this.mark, this);
       this.parseBoard = __bind(this.parseBoard, this);
       this.rowStillWinnable = __bind(this.rowStillWinnable, this);
@@ -29,9 +30,15 @@
       this.$scope.mark = this.mark;
       this.$scope.startGame = this.startGame;
       this.$scope.gameOn = false;
+      this.dbRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/");
+      this.db = this.$firebase(this.dbRef);
     }
 
     BoardCtrl.prototype.startGame = function() {
+      this.db.$add({
+        name: "Victor",
+        iq: 200
+      });
       this.$scope.gameOn = true;
       return this.resetBoard();
     };
@@ -45,7 +52,6 @@
     BoardCtrl.prototype.getRow = function(pattern) {
       var c, c0, c1, c2;
       c = this.cells;
-      console.log(this.cells);
       console.log(pattern);
       c0 = c[pattern[0]] || pattern[0];
       console.log(c0);
@@ -176,7 +182,7 @@
 
   })();
 
-  BoardCtrl.$inject = ["$scope", "WIN_PATTERNS"];
+  BoardCtrl.$inject = ["$scope", "WIN_PATTERNS", "$firebase"];
 
   ticTacToe.controller("BoardCtrl", BoardCtrl);
 
