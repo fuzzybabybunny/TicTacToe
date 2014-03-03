@@ -46,7 +46,6 @@
     };
 
     BoardCtrl.prototype.startGame = function() {
-      this.$scope.gameOn = true;
       this.resetBoard();
       if (this.unbind) {
         this.unbind();
@@ -56,7 +55,8 @@
       this.db = this.$firebase(this.dbRef);
       return this.db.$bind(this.$scope, 'cells').then((function(_this) {
         return function(unbind) {
-          return _this.unbind = unbind;
+          _this.unbind = unbind;
+          return _this.$scope.gameOn = true;
         };
       })(this));
     };
