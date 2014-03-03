@@ -33,7 +33,6 @@
 
     BoardCtrl.prototype.startGame = function() {
       this.$scope.gameOn = true;
-      this.$scope.currentPlayer = this.player();
       return this.resetBoard();
     };
 
@@ -46,13 +45,17 @@
     BoardCtrl.prototype.getRow = function(pattern) {
       var c, c0, c1, c2;
       c = this.cells;
+      console.log(this.cells);
+      console.log(pattern);
       c0 = c[pattern[0]] || pattern[0];
+      console.log(c0);
       c1 = c[pattern[1]] || pattern[1];
       c2 = c[pattern[2]] || pattern[2];
       return "" + c0 + c1 + c2;
     };
 
     BoardCtrl.prototype.someoneWon = function(row) {
+      'xxx' === row || 'ooo' === row;
       return 'xxx' === row || 'ooo' === row;
     };
 
@@ -94,7 +97,7 @@
     };
 
     BoardCtrl.prototype.isMixedRow = function(row) {
-      return !!row.match(/ox\d|o\dx|\dox|xo\d|x\do|\dxo/i);
+      return !!row.match(/o+\d?x+|x+\d?o+/i);
     };
 
     BoardCtrl.prototype.hasOneX = function(row) {
@@ -146,6 +149,7 @@
         return function(pattern) {
           var row;
           row = _this.getRow(pattern);
+          _this.arrayRow += row;
           won || (won = _this.someoneWon(row));
           return _this.rowStillWinnable(row);
         };
@@ -160,8 +164,8 @@
     BoardCtrl.prototype.mark = function($event) {
       var cell;
       this.$event = $event;
-      if (this.$scope.gameOn) {
-        cell = this.$event.target.dataset.index;
+      cell = this.$event.target.dataset.index;
+      if (this.$scope.gameOn && !this.cells[cell]) {
         this.cells[cell] = this.player();
         this.parseBoard();
         return this.$scope.currentPlayer = this.player();

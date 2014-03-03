@@ -23,7 +23,6 @@ class BoardCtrl
 
   startGame: =>
     @$scope.gameOn = true
-    @$scope.currentPlayer = @player()
     @resetBoard()
 
   getPatterns: =>
@@ -31,12 +30,16 @@ class BoardCtrl
 
   getRow: (pattern) =>
     c = @cells
+    console.log "@cells :" @cells
+    console.log pattern
     c0 = c[pattern[0]] || pattern[0]
+    console.log c0
     c1 = c[pattern[1]] || pattern[1]
     c2 = c[pattern[2]] || pattern[2]
     "#{c0}#{c1}#{c2}"
 
   someoneWon: (row) ->
+    'xxx' == row || 'ooo' == row
     'xxx' == row || 'ooo' == row
 
   resetBoard: =>
@@ -65,7 +68,7 @@ class BoardCtrl
     if moves % 2 == 0 then 'x' else 'o'
 
   isMixedRow: (row) ->
-    !!row.match(/ox\d|o\dx|\dox|xo\d|x\do|\dxo/i)
+    !!row.match(/o+\d?x+|x+\d?o+/i)
 
   hasOneX: (row) ->
     !!row.match(/x\d\d|\dx\d|\d\dx/i)
@@ -107,8 +110,10 @@ class BoardCtrl
 
     @patternsToTest = @patternsToTest.filter (pattern) =>
       row = @getRow(pattern)
+      @arrayRow += row
       won ||= @someoneWon(row)
       @rowStillWinnable(row)
+
 
     if won
       @announceWinner()
@@ -116,8 +121,8 @@ class BoardCtrl
       @announceTie()
 
   mark: (@$event) =>
-    if @$scope.gameOn
-      cell = @$event.target.dataset.index
+    cell = @$event.target.dataset.index
+    if @$scope.gameOn && !@cells[cell]
       @cells[cell] = @player()
       @parseBoard()
       @$scope.currentPlayer = @player()
