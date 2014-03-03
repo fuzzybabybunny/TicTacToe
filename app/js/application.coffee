@@ -27,19 +27,21 @@ class BoardCtrl
     id.substr 0, length
 
   startGame: =>
-    @db.$add game:
-      id: @uniqueId()
     @$scope.gameOn = true
     @resetBoard()
+
+    @unbind() if @unbind
+    @id = @uniqueId()
+    @dbRef = new Firebase "https://tictactoe-victor-lin.firebaseio.com/#{@id}"
+    @db = @$firebase @dbRef
+    @db.$bind( @$scope, 'cells' ).then (unbind) => @unbind = unbind
 
   getPatterns: =>
     @patternsToTest = @WIN_PATTERNS.filter -> true
 
   getRow: (pattern) =>
     c = @cells
-    console.log pattern
     c0 = c[pattern[0]] || pattern[0]
-    console.log c0
     c1 = c[pattern[1]] || pattern[1]
     c2 = c[pattern[2]] || pattern[2]
     "#{c0}#{c1}#{c2}"
@@ -51,9 +53,10 @@ class BoardCtrl
     @$scope.theWinnerIs = false
     @$scope.cats = false
     @cells = @$scope.cells = {}
-    @id = @uniqueId()
-    @dbRef = new Firebase "https://tictactoe-victor-lin.firebaseio.com/#{@id}"
-    @db = @$firebase @dbRef
+    @winningCells = @$scope.winningCells = {}
+
+
+
     @$scope.currentPlayer = @player()
     @getPatterns()
 
@@ -96,13 +99,15 @@ class BoardCtrl
   gameUnwinnable: =>
     @patternsToTest.length < 1
 
-  announceWinner: =>
-    winner = @player(whoMovedLast: true)
+  announceWinner: (winningPattern) =>
+    winner = @cells[winningPattern[0]]
+    for k, v of @cells
+      @winningCells[k] = if parseInt(k) in winningPattern then 'win' else 'unwin'
     @$scope.theWinnerIs = winner
     @$scope.gameOn = false
 
   announceTie: =>
-    @$scope.cats true
+    @$scope.cats = true
     @$scope.gameOn = false
 
   rowStillWinnable: (row) =>
@@ -114,17 +119,15 @@ class BoardCtrl
     (@isEmptyRow(row) and @movesRemaining() < 5))
 
   parseBoard: =>
-    won = false
+    winningPattern = false
 
     @patternsToTest = @patternsToTest.filter (pattern) =>
       row = @getRow(pattern)
-      @arrayRow += row
-      won ||= @someoneWon(row)
+      winningPattern ||= pattern if @someoneWon(row)
       @rowStillWinnable(row)
 
-
-    if won
-      @announceWinner()
+    if winningPattern
+      @announceWinner(winningPattern)
     else if @gameUnwinnable()
       @announceTie()
 
@@ -132,7 +135,6 @@ class BoardCtrl
     cell = @$event.target.dataset.index
     if @$scope.gameOn && !@cells[cell]
       @cells[cell] = @player()
-      @db.$set board: @cells
       @parseBoard()
       @$scope.currentPlayer = @player()
 

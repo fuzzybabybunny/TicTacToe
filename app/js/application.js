@@ -2,7 +2,8 @@
 (function() {
   "use strict";
   var BoardCtrl,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   this.ticTacToe = angular.module('TicTacToe', ["firebase"]);
 
@@ -45,13 +46,19 @@
     };
 
     BoardCtrl.prototype.startGame = function() {
-      this.db.$add({
-        game: {
-          id: this.uniqueId()
-        }
-      });
       this.$scope.gameOn = true;
-      return this.resetBoard();
+      this.resetBoard();
+      if (this.unbind) {
+        this.unbind();
+      }
+      this.id = this.uniqueId();
+      this.dbRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/" + this.id);
+      this.db = this.$firebase(this.dbRef);
+      return this.db.$bind(this.$scope, 'cells').then((function(_this) {
+        return function(unbind) {
+          return _this.unbind = unbind;
+        };
+      })(this));
     };
 
     BoardCtrl.prototype.getPatterns = function() {
@@ -63,9 +70,7 @@
     BoardCtrl.prototype.getRow = function(pattern) {
       var c, c0, c1, c2;
       c = this.cells;
-      console.log(pattern);
       c0 = c[pattern[0]] || pattern[0];
-      console.log(c0);
       c1 = c[pattern[1]] || pattern[1];
       c2 = c[pattern[2]] || pattern[2];
       return "" + c0 + c1 + c2;
@@ -79,9 +84,7 @@
       this.$scope.theWinnerIs = false;
       this.$scope.cats = false;
       this.cells = this.$scope.cells = {};
-      this.id = this.uniqueId();
-      this.dbRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/" + this.id);
-      this.db = this.$firebase(this.dbRef);
+      this.winningCells = this.$scope.winningCells = {};
       this.$scope.currentPlayer = this.player();
       return this.getPatterns();
     };
@@ -143,17 +146,20 @@
       return this.patternsToTest.length < 1;
     };
 
-    BoardCtrl.prototype.announceWinner = function() {
-      var winner;
-      winner = this.player({
-        whoMovedLast: true
-      });
+    BoardCtrl.prototype.announceWinner = function(winningPattern) {
+      var k, v, winner, _ref, _ref1;
+      winner = this.cells[winningPattern[0]];
+      _ref = this.cells;
+      for (k in _ref) {
+        v = _ref[k];
+        this.winningCells[k] = (_ref1 = parseInt(k), __indexOf.call(winningPattern, _ref1) >= 0) ? 'win' : 'unwin';
+      }
       this.$scope.theWinnerIs = winner;
       return this.$scope.gameOn = false;
     };
 
     BoardCtrl.prototype.announceTie = function() {
-      this.$scope.cats(true);
+      this.$scope.cats = true;
       return this.$scope.gameOn = false;
     };
 
@@ -162,19 +168,20 @@
     };
 
     BoardCtrl.prototype.parseBoard = function() {
-      var won;
-      won = false;
+      var winningPattern;
+      winningPattern = false;
       this.patternsToTest = this.patternsToTest.filter((function(_this) {
         return function(pattern) {
           var row;
           row = _this.getRow(pattern);
-          _this.arrayRow += row;
-          won || (won = _this.someoneWon(row));
+          if (_this.someoneWon(row)) {
+            winningPattern || (winningPattern = pattern);
+          }
           return _this.rowStillWinnable(row);
         };
       })(this));
-      if (won) {
-        return this.announceWinner();
+      if (winningPattern) {
+        return this.announceWinner(winningPattern);
       } else if (this.gameUnwinnable()) {
         return this.announceTie();
       }
@@ -186,9 +193,6 @@
       cell = this.$event.target.dataset.index;
       if (this.$scope.gameOn && !this.cells[cell]) {
         this.cells[cell] = this.player();
-        this.db.$set({
-          board: this.cells
-        });
         this.parseBoard();
         return this.$scope.currentPlayer = this.player();
       }
