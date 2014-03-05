@@ -27,14 +27,36 @@ class BoardCtrl
     id.substr 0, length
 
   startGame: =>
+
     @resetBoard()
     @unbind() if @unbind
     @id = @uniqueId()
+
+
     @dbRef = new Firebase "https://tictactoe-victor-lin.firebaseio.com/#{@id}"
     @db = @$firebase @dbRef
-    @db.$bind( @$scope, 'cells' ).then (unbind) =>
+
+    @playerDB = @$firebase @dbRef.child('player')
+
+    @playerDB.$bind( @$scope, 'currentPlayer' ).then (unbind) =>
       @unbind = unbind
       @$scope.gameOn = true
+
+    @boardDB = @$firebase @dbRef.child('board')
+
+    @boardDB.$bind( @$scope, 'cells' ).then (unbind) =>
+      @unbind = unbind
+      @$scope.gameOn = true
+
+
+
+    # @db = @$firebase @dbRef.child('board')
+    # @db.$bind( @$scope, 'cells' ).then (unbind) =>
+    #   @unbind = unbind
+    #   @$scope.gameOn = true
+
+
+
 
   getPatterns: =>
     @patternsToTest = @WIN_PATTERNS.filter -> true
@@ -50,10 +72,12 @@ class BoardCtrl
     'xxx' == row || 'ooo' == row
 
   resetBoard: =>
+
     @$scope.theWinnerIs = false
     @$scope.cats = false
     @cells = @$scope.cells = {}
     @winningCells = @$scope.winningCells = {}
+
     @$scope.currentPlayer = @player()
     @getPatterns()
 
