@@ -29,24 +29,18 @@ class BoardCtrl
   startGame: =>
 
     @resetBoard()
-    @unbind() if @unbind
+    @unbindBoard() if @unbindBoard
+    @unbindPlayer() if @unbindPlayer
     @id = @uniqueId()
-
-
     @dbRef = new Firebase "https://tictactoe-victor-lin.firebaseio.com/#{@id}"
-    @db = @$firebase @dbRef
-
-    @playerDB = @$firebase @dbRef.child('player')
-
-    @playerDB.$bind( @$scope, 'currentPlayer' ).then (unbind) =>
-      @unbind = unbind
+    @db = @$firebase @dbRef.child('board')
+    @db.$bind( @$scope, 'cells' ).then (unbind) =>
+      @unbindBoard = unbind
       @$scope.gameOn = true
-
-    @boardDB = @$firebase @dbRef.child('board')
-
-    @boardDB.$bind( @$scope, 'cells' ).then (unbind) =>
-      @unbind = unbind
-      @$scope.gameOn = true
+    @dbplayer = @$firebase @dbRef.child('player')
+    @dbplayer.$set @$scope.currentPlayer
+    @dbplayer.$bind( @$scope, 'currentPlayer' ).then (unbind) =>
+      @unbindPlayer = unbind
 
 
 
