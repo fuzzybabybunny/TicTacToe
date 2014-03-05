@@ -54,9 +54,6 @@ class BoardCtrl
     @$scope.cats = false
     @cells = @$scope.cells = {}
     @winningCells = @$scope.winningCells = {}
-
-
-
     @$scope.currentPlayer = @player()
     @getPatterns()
 
