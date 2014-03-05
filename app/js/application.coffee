@@ -32,7 +32,16 @@ class BoardCtrl
     @unbindBoard() if @unbindBoard
     @unbindPlayer() if @unbindPlayer
     @id = @uniqueId()
+
     @dbRef = new Firebase "https://tictactoe-victor-lin.firebaseio.com/#{@id}"
+
+    @gameRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/")
+    @gameRef.on 'value', (snapshot) ->
+      console.log snapshot.val()
+      console.log Object.keys snapshot.val()
+
+
+
     @db = @$firebase @dbRef.child('board')
     @db.$bind( @$scope, 'cells' ).then (unbind) =>
       @unbindBoard = unbind

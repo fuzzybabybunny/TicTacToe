@@ -55,6 +55,11 @@
       }
       this.id = this.uniqueId();
       this.dbRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/" + this.id);
+      this.gameRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/");
+      this.gameRef.on('value', function(snapshot) {
+        console.log(snapshot.val());
+        return console.log(Object.keys(snapshot.val()));
+      });
       this.db = this.$firebase(this.dbRef.child('board'));
       this.db.$bind(this.$scope, 'cells').then((function(_this) {
         return function(unbind) {
