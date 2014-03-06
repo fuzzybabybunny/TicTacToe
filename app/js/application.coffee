@@ -57,6 +57,8 @@ class BoardCtrl
       @parseBoard()
 
   resetBoard: =>
+    @scope.theWinnerIs = false
+    @scope.cats = false
     @gameId = null
     @unbindCells() if @unbindCells
     @scope.cells = {}

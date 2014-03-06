@@ -87,6 +87,8 @@
     };
 
     BoardCtrl.prototype.resetBoard = function() {
+      this.scope.theWinnerIs = false;
+      this.scope.cats = false;
       this.gameId = null;
       if (this.unbindCells) {
         this.unbindCells();
