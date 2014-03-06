@@ -28,8 +28,8 @@ class BoardCtrl
     @scope.gameOn = false
     @scope.myMove = false
     @resetBoard()
-    @pendingGameRef = new Firebase "https://munat.firebaseio.com/tictactoe/pendingGame"
-    @gamesRef = new Firebase "https://munat.firebaseio.com/tictactoe/games"
+    @pendingGameRef = new Firebase "https://tictactoe-victor-lin.firebaseio.com/pendingGame"
+    @gamesRef = new Firebase "https://tictactoe-victor-lin.firebaseio.com/tictactoe/games"
     @games = @firebase @gamesRef
 
   setUpGame: (pendingGame) =>
@@ -47,7 +47,7 @@ class BoardCtrl
     Object.keys(@scope.cells).filter( (k) -> k.length == 1 ).length
 
   runGame: (error, committed, snapshot) =>
-    @boardRef = new Firebase "https://munat.firebaseio.com/tictactoe/games/#{@gameId}/board"
+    @boardRef = new Firebase "https://tictactoe-victor-lin.firebaseio.com/tictactoe/games/#{@gameId}/board"
     @board = @firebase @boardRef
     @board.$bind( @scope, 'cells' ).then (unbind) =>
       @unbindCells = unbind

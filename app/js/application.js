@@ -45,8 +45,8 @@
       this.scope.gameOn = false;
       this.scope.myMove = false;
       this.resetBoard();
-      this.pendingGameRef = new Firebase("https://munat.firebaseio.com/tictactoe/pendingGame");
-      this.gamesRef = new Firebase("https://munat.firebaseio.com/tictactoe/games");
+      this.pendingGameRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/pendingGame");
+      this.gamesRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/tictactoe/games");
       this.games = this.firebase(this.gamesRef);
     }
 
@@ -70,7 +70,7 @@
     };
 
     BoardCtrl.prototype.runGame = function(error, committed, snapshot) {
-      this.boardRef = new Firebase("https://munat.firebaseio.com/tictactoe/games/" + this.gameId + "/board");
+      this.boardRef = new Firebase("https://tictactoe-victor-lin.firebaseio.com/tictactoe/games/" + this.gameId + "/board");
       this.board = this.firebase(this.boardRef);
       this.board.$bind(this.scope, 'cells').then((function(_this) {
         return function(unbind) {
